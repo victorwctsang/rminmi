@@ -2,8 +2,8 @@ Package: rminmi
 Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
-Author: Victor Tsang
-Maintainer: Victor Tsang
+Authors@R: c(
+    person("Victor", "Tsang", email = "victorwctsang@gmail.com", role = c("cre", "aut")))
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
