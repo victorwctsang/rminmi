@@ -4,18 +4,18 @@
 \alias{estimate_quantile.minmi}
 \title{Estimate a specific quantile using the MINMI method.}
 \usage{
-estimate_quantile.minmi(K, W, u, eps.mean = 0, eps.sigma = 0, q)
+estimate_quantile.minmi(K, W, u = NULL, eps.mean = 0, eps.sigma = 0, q)
 }
 \arguments{
 \item{K}{Numeric upper bound for fossil ages.}
 
 \item{W}{Numeric vector of fossil ages.}
 
-\item{u}{Numeric vector of values sampled from a uniform distribution from 0 to 1 and with same length as W.}
+\item{u}{Optional numeric vector of values sampled from a uniform distribution from 0 to 1 and with same length as W.}
 
-\item{eps.mean}{Numeric mean of the measurement error distribution. Defaults to 0.}
+\item{eps.mean}{Optional numeric mean of the measurement error distribution. Defaults to 0.}
 
-\item{eps.sigma}{Numeric standard error of the measurement error distribution. Defaults to 0.}
+\item{eps.sigma}{Optional numeric standard error of the measurement error distribution. Defaults to 0.}
 
 \item{q}{Numeric between 0 and 1 specifying the quantile we want to estimate.}
 }
