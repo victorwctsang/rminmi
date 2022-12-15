@@ -24,7 +24,7 @@ minmi <- function (W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = N
 
   if (flag.delta_model) {
     for (i in 1:length(q)) {
-      result[[i]] <- estimate_quantile.minmi(K = K, W = W, eps.mean = 0, eps.sigma = dating.sd, q = q[i])
+      result[[i]] <- estimate_quantile.minmi(K = K, W = W, eps.sigma = dating.sd, q = q[i])
     }
     return(result)
   }
@@ -39,7 +39,7 @@ minmi <- function (W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = N
     if (is.null(B)) {
       u.init <- runif(.B_init, 0, 1)
       for (i in 1:length(q)) {
-        result$B[[i]] <- find_optimal_B(max_var = max_var, K = K, m = m, n = n, u = u.init, eps.mean = 0, eps.sigma = dating.sd, q = q[i])
+        result$B[[i]] <- find_optimal_B(max_var = max_var, K = K, m = m, n = n, u = u.init, eps.sigma = dating.sd, q = q[i])
       }
     }
 
@@ -49,7 +49,7 @@ minmi <- function (W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = N
 
     # Calculate estimates
     for (i in 1:length(q)) {
-      result[[i]] <- estimate_quantile.minmi(K = K, W = W, u = mc.samples[1:result$B[[i]]], eps.mean = 0, eps.sigma = dating.sd, q = q[i])
+      result[[i]] <- estimate_quantile.minmi(K = K, W = W, u = mc.samples[1:result$B[[i]]], eps.sigma = dating.sd, q = q[i])
     }
     return(result)
   }
@@ -59,22 +59,21 @@ minmi <- function (W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = N
 #'
 #' @param K Numeric upper bound for fossil ages.
 #' @param W Numeric vector of fossil ages.
-#' @param u Optional numeric vector of values sampled from a uniform distribution from 0 to 1 and with same length as W.
-#' @param eps.mean Optional numeric mean of the measurement error distribution. Defaults to 0.
-#' @param eps.sigma Optional numeric standard error of the measurement error distribution. Defaults to 0.
+#' @param u Optional Matrix of numbers sampled from a uniform distribution from 0 to 1. Rows correspond to fossils and Columns correspond to Monte Carlo samples
+#' @param eps.sigma Optional vector of standard errors for each fossil. Defaults to 0.
 #' @param q Numeric between 0 and 1 specifying the quantile we want to estimate.
 #'
 #' @return A numeric indicating the MINMI estimate of the qth quantile of our sample statistic.
 #' @export
-estimate_quantile.minmi <- function (K, W, u=NULL, eps.mean = 0, eps.sigma = 0, q) {
+estimate_quantile.minmi <- function (K, W, u=NULL, eps.sigma = 0, q) {
   n <- length(W)
   m <- min(W)
   # No Measurement Error case
   theta_q.hat <- K - q ^ (-1 / n) * (K - m)
-  if (eps.mean != 0 || eps.sigma != 0) {
+  if (!all(eps.sigma == 0)) {
     # Measurement Error case
     newton.res <- pracma::newtonRaphson(
-      fun = function(theta) estimating_eqn(theta, q, K, u, m, n, eps.mean, eps.sigma),
+      fun = function(theta) estimating_eqn(theta, q, K, u, m, n, eps.sigma),
       x0 = theta_q.hat
     )
     theta_q.hat <- newton.res$root
@@ -88,28 +87,28 @@ estimate_quantile.minmi <- function (K, W, u=NULL, eps.mean = 0, eps.sigma = 0, 
 #' @param K Numeric. Upper bound for fossil record.
 #' @param m Numeric. Sample minimum from fossil record.
 #' @param n Number of fossils.
-#' @param u Numeric vector of values sampled from a uniform distribution from 0 to 1 and with same length as W.
-#' @param eps.mean Numeric mean of the measurement error distribution. Defaults to 0.
-#' @param eps.sigma Numeric standard error of the measurement error distribution. Defaults to 0.
+#' @param u Matrix of numbers sampled from a uniform distribution from 0 to 1. Rows correspond to fossils and Columns correspond to Monte Carlo samples
+#' @param eps.sigma Vector of standard errors for each fossil. Length n.
 #' @param q Numeric between 0 and 1 specifying the quantile we want to estimate.
 #'
-#' @return A number.
+#' @return Vector of numbers for each fossil.
 #' @export
-find_optimal_B <- function (max_var, K, m, n, u, eps.mean, eps.sigma, q) {
+#' TODO
+find_optimal_B <- function (max_var, K, m, n, u, eps.sigma, q) {
   # Initial estimate of theta_q using no measurement error case
   theta_q.hat.init <- K - q ^ (-1 / n) * (K - m)
 
   # pdfs and CDF evaluations (for convenience)
-  f_eps.K <- dnorm(K - theta_q.hat.init, eps.mean, eps.sigma)
-  F_eps.K <- pnorm(K - theta_q.hat.init, eps.mean, eps.sigma)
+  f_eps.K <- dnorm(K - theta_q.hat.init, mean=0, sd=eps.sigma)
+  F_eps.K <- pnorm(K - theta_q.hat.init, mean=0, sd=eps.sigma)
   # Estimate sigma^2_var
   B <- length(u)
-  e <- uniform_to_tnorm(u, eps.mean, eps.sigma, a = -Inf, b = m - theta_q.hat.init)
-  sample_var.psi_hat <- var((m - e - theta_q.hat.init) / (K - e - theta_q.hat.init))
+  e <- uniform_to_tnorm(u, eps.sigma, a = -Inf, b = m - theta_q.hat.init)
+  sample_var.psi_hat <- apply((m - e - theta_q.hat.init) / (K - e - theta_q.hat.init), MARGIN=1, FUN=var)
 
   # Estimate \hat\psi and \hat\psi prime
-  psi_hat <- mean((m - e - theta_q.hat.init) / (K - e - theta_q.hat.init))
-  psi_hat.prime <- -mean((K - m) / (K - e - theta_q.hat.init) ^ 2)
+  psi_hat <- apply((m - e - theta_q.hat.init) / (K - e - theta_q.hat.init), MARGIN=1, FUN=mean)
+  psi_hat.prime <- - apply((K - m) / (K - e - theta_q.hat.init) ^ 2, MARGIN=1, FUN=mean)
 
   optimal_B <- 1 / max_var * sample_var.psi_hat * (f_eps.K / F_eps.K * psi_hat + psi_hat.prime) ^ (-2)
 
@@ -121,29 +120,29 @@ find_optimal_B <- function (max_var, K, m, n, u, eps.mean, eps.sigma, q) {
 #' @param theta Number. Estimate for theta.
 #' @param q Numeric between 0 and 1 specifying the quantile we want to estimate.
 #' @param K Numeric. Upper bound for fossil record.
-#' @param u Numeric vector of values sampled from a uniform distribution from 0 to 1 and with same length as W.
+#' @param u Matrix of numbers sampled from a uniform distribution from 0 to 1. Rows correspond to fossils and Columns correspond to Monte Carlo samples
 #' @param m Numeric. Sample minimum from fossil record.
 #' @param n Number of fossils.
-#' @param eps.mean Numeric mean of the measurement error distribution. Defaults to 0.
-#' @param eps.sigma Numeric standard error of the measurement error distribution. Defaults to 0.
+#' @param eps.sigma Vector of standard errors for each fossil. Length n.
 #'
 #' @return A number
-estimating_eqn <- function (theta, q, K, u, m, n, eps.mean, eps.sigma) {
-  F.eps.m <- pnorm(m - theta, mean = eps.mean, sd = eps.sigma)
-  F.eps.K <- pnorm(K - theta, mean = eps.mean, sd = eps.sigma)
-  psi.hat <- estimate_psi(u = u, mean = eps.mean, sd = eps.sigma, a = -Inf, b = m - theta, K = K, m = m, theta = theta)
-  return(1 - F.eps.m / F.eps.K * psi.hat - q ^ (1 / n))
+estimating_eqn <- function (theta, q, K, u, m, n, eps.sigma) {
+  F.eps.m <- pnorm(m - theta, mean = 0, sd = eps.sigma)
+  F.eps.K <- pnorm(K - theta, mean = 0, sd = eps.sigma)
+  e <- uniform_to_tnorm(u, eps.sigma, a = -Inf, b = m - theta)
+  psi.hat <- apply((m - e - theta) / (K - e - theta), MARGIN = 1, FUN=mean)
+  return(sum(log(1 - F.eps.m / F.eps.K * psi.hat)) - log(q))
 }
 
-# Helper function
-estimate_psi <- function (u, mean, sd, a, b, K, m, theta) {
-  e <- uniform_to_tnorm(u, mean, sd, a, b)
-  psi.hat <- mean((m - e - theta) / (K - e - theta))
-  return(psi.hat)
-}
-
-# Helper function
-uniform_to_tnorm <- function (u, mean, sd, a, b) {
-  mc.samples <- extraDistr::qtnorm(p = u, mean = mean, sd = sd, a = a, b = b)
+#' Helper function to transform samples from a uniform dist to a truncated normal
+#'
+#' @param u Matrix of numbers. Rows = fossils; columns = MC samples
+#' @param eps.sigma Vector of numbers. Standard deviations for each fossil.
+#' @param a Lower bound for truncated normal
+#' @param b Upper bound for truncated normal
+#'
+#' @return Matrix of numbers. Same dimensions as u
+uniform_to_tnorm <- function (u, eps.sigma, a, b) {
+  mc.samples <- matrix(extraDistr::qtnorm(p = u, mean = 0, sd = eps.sigma, a = a, b = b), ncol=ncol(u))
   return(mc.samples)
 }
