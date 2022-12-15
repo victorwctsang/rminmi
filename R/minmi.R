@@ -92,9 +92,8 @@ estimate_quantile.minmi <- function (K, W, u=NULL, eps.sigma = 0, q) {
 #' @param q Numeric between 0 and 1 specifying the quantile we want to estimate.
 #'
 #' @return Vector of numbers for each fossil.
-#' @export
-#' TODO
 find_optimal_B <- function (max_var, K, m, n, u, eps.sigma, q) {
+  # TODO
   # Initial estimate of theta_q using no measurement error case
   theta_q.hat.init <- K - q ^ (-1 / n) * (K - m)
 

@@ -4,7 +4,7 @@
 \alias{estimating_eqn}
 \title{Estimating equation for Newton-Raphson's Algorithm}
 \usage{
-estimating_eqn(theta, q, K, u, m, n, eps.mean, eps.sigma)
+estimating_eqn(theta, q, K, u, m, n, eps.sigma)
 }
 \arguments{
 \item{theta}{Number. Estimate for theta.}
@@ -13,15 +13,13 @@ estimating_eqn(theta, q, K, u, m, n, eps.mean, eps.sigma)
 
 \item{K}{Numeric. Upper bound for fossil record.}
 
-\item{u}{Numeric vector of values sampled from a uniform distribution from 0 to 1 and with same length as W.}
+\item{u}{Matrix of numbers sampled from a uniform distribution from 0 to 1. Rows correspond to fossils and Columns correspond to Monte Carlo samples}
 
 \item{m}{Numeric. Sample minimum from fossil record.}
 
 \item{n}{Number of fossils.}
 
-\item{eps.mean}{Numeric mean of the measurement error distribution. Defaults to 0.}
-
-\item{eps.sigma}{Numeric standard error of the measurement error distribution. Defaults to 0.}
+\item{eps.sigma}{Vector of standard errors for each fossil. Length n.}
 }
 \value{
 A number

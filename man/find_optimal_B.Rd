@@ -4,7 +4,7 @@
 \alias{find_optimal_B}
 \title{Function for Finding the Number of Monte Carlo Samples for MINMI}
 \usage{
-find_optimal_B(max_var, K, m, n, u, eps.mean, eps.sigma, q)
+find_optimal_B(max_var, K, m, n, u, eps.sigma, q)
 }
 \arguments{
 \item{max_var}{Numeric greater than 0 specifying the maximum Monte Carlo error variance we aim to have associated with our MINMI estimates.}
@@ -15,16 +15,14 @@ find_optimal_B(max_var, K, m, n, u, eps.mean, eps.sigma, q)
 
 \item{n}{Number of fossils.}
 
-\item{u}{Numeric vector of values sampled from a uniform distribution from 0 to 1 and with same length as W.}
+\item{u}{Matrix of numbers sampled from a uniform distribution from 0 to 1. Rows correspond to fossils and Columns correspond to Monte Carlo samples}
 
-\item{eps.mean}{Numeric mean of the measurement error distribution. Defaults to 0.}
-
-\item{eps.sigma}{Numeric standard error of the measurement error distribution. Defaults to 0.}
+\item{eps.sigma}{Vector of standard errors for each fossil. Length n.}
 
 \item{q}{Numeric between 0 and 1 specifying the quantile we want to estimate.}
 }
 \value{
-A number.
+Vector of numbers for each fossil.
 }
 \description{
 Function for Finding the Number of Monte Carlo Samples for MINMI
