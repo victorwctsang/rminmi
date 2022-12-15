@@ -20,10 +20,6 @@ test_that("Epsilon model (with same standard deviations) point estimate works", 
   n <- 30
   sd <- rep(200, n)
   theta.true <- 10000
-  K <- 18000
-  n <- 30
-  sd <- rep(200, n)
-  theta.true <- 10000
 
   set.seed(0); W <- runif(n, theta.true, K) + sd
   set.seed(1); u <- matrix(runif(n*100, 0, 1), ncol=100)
