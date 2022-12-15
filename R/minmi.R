@@ -5,12 +5,12 @@
 #' @param W Numeric vector of fossil ages.
 #' @param sd Numeric vector of measurement error uncertainty associated with each fossil.
 #' @param K Numeric upper bound for fossil ages.
-#' @param alpha Numeric between 0 and 1. Used to find 100(1-alpha)% confidence intervals. Defaults to 0.05 (95% confidence intervals)
+#' @param alpha Numeric between 0 and 1. Used to find 100(1-alpha)\% confidence intervals. Defaults to 0.05 (95\% confidence intervals)
 #' @param B Optional numeric greater than 1 specifying the number of Monte Carlo samples to use.
 #' @param .B_init Optional numeric greater than 1 specifying the number of Monte Carlo samples to use in the pilot estimates. Defaults to 500.
 #' @param .max_var Optional numeric greater than 0 specifying the maximum Monte Carlo error variance we aim to have associated with our MINMI estimates.
 #'
-#' @return A list with estimates for the lower end point of the 100(1-alpha)% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
+#' @return A list with estimates for the lower end point of the 100(1-alpha)\% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
 #' @export
 #' @importFrom stats dnorm pnorm runif var
 minmi <- function (W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = NULL) {

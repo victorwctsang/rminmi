@@ -13,7 +13,7 @@ minmi(W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = NULL)
 
 \item{K}{Numeric upper bound for fossil ages.}
 
-\item{alpha}{Numeric between 0 and 1. Used to find 100(1-alpha)% confidence intervals. Defaults to 0.05 (95% confidence intervals)}
+\item{alpha}{Numeric between 0 and 1. Used to find 100(1-alpha)\% confidence intervals. Defaults to 0.05 (95\% confidence intervals)}
 
 \item{B}{Optional numeric greater than 1 specifying the number of Monte Carlo samples to use.}
 
@@ -22,7 +22,7 @@ minmi(W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = NULL)
 \item{.max_var}{Optional numeric greater than 0 specifying the maximum Monte Carlo error variance we aim to have associated with our MINMI estimates.}
 }
 \value{
-A list with estimates for the lower end point of the 100(1-alpha)% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
+A list with estimates for the lower end point of the 100(1-alpha)\% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
 }
 \description{
 This function estimates extinction times using the MINMI procedure

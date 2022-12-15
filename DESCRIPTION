@@ -6,7 +6,7 @@ Authors@R: c(
     person("Victor", "Tsang", email = "victorwctsang@gmail.com", role = c("cre", "aut")))
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: use_cc0_license()
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
