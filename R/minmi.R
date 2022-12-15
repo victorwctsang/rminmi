@@ -2,7 +2,7 @@
 #'
 #' This function estimates extinction times using the MINMI procedure
 #'
-#' @param W Numeric vector of fossil ages.
+#' @param ages Numeric vector of fossil ages.
 #' @param sd Numeric vector of measurement error uncertainty associated with each fossil.
 #' @param K Numeric upper bound for fossil ages.
 #' @param alpha Numeric between 0 and 1. Used to find 100(1-alpha)\% confidence intervals. Defaults to 0.05 (95\% confidence intervals)
@@ -13,43 +13,44 @@
 #' @return A list with estimates for the lower end point of the 100(1-alpha)\% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
 #' @export
 #' @importFrom stats dnorm pnorm runif var
-minmi <- function (W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = NULL) {
+minmi <- function (ages, sd, K, alpha = 0.05, B = 100, .B_init = 500, .max_var = NULL) {
+  B = 100 # TODO
   result <- list(lower=NULL, point = NULL, upper = NULL, B = list(lower=B, point=B, upper=B))
-  n <- length(W)
-  m <- min(W)
-  dating.sd = mean(sd)
+  n <- length(ages)
+  m <- min(ages)
+
   q <- c(lower = alpha/2, point = 0.5, upper = 1-alpha/2)
 
-  flag.delta_model = (all(sd) == 0)
+  flag.delta_model = (all(sd == 0))
 
   if (flag.delta_model) {
     for (i in 1:length(q)) {
-      result[[i]] <- estimate_quantile.minmi(K = K, W = W, eps.sigma = dating.sd, q = q[i])
+      result[[i]] <- estimate_quantile.minmi(K = K, W = ages, u=NULL, eps.sigma = sd, q = q[i])
     }
     return(result)
   }
   else {
-    # Set the maximum variance
-    max_var <- 0.2 * (dating.sd) ^ 2
-    if (!is.null(.max_var)) {
-      max_var <- .max_var
-    }
-
     # Calculate number of monte carlo samples to use
-    if (is.null(B)) {
-      u.init <- runif(.B_init, 0, 1)
-      for (i in 1:length(q)) {
-        result$B[[i]] <- find_optimal_B(max_var = max_var, K = K, m = m, n = n, u = u.init, eps.sigma = dating.sd, q = q[i])
-      }
-    }
+    # TODO
+    # Set the maximum variance
+    # max_var <- 0.2 * (sd) ^ 2
+    # if (!is.null(.max_var)) {
+    #   max_var <- .max_var
+    # }
+    # if (is.null(B)) {
+    #   u.init <- runif(.B_init, 0, 1)
+    #   for (i in 1:length(q)) {
+    #     result$B[[i]] <- find_optimal_B(max_var = max_var, K = K, m = m, n = n, u = u.init, eps.sigma = dating.sd, q = q[i])
+    #   }
+    # }
 
     # Generate Monte Carlo Samples
     B.max <- max(unlist(result$B))
-    mc.samples <- runif(B.max, min = 0, max = 1)
+    mc.samples <- matrix(runif(n*B.max, min = 0, max = 1), ncol=B.max)
 
     # Calculate estimates
     for (i in 1:length(q)) {
-      result[[i]] <- estimate_quantile.minmi(K = K, W = W, u = mc.samples[1:result$B[[i]]], eps.sigma = dating.sd, q = q[i])
+      result[[i]] <- estimate_quantile.minmi(K = K, W = ages, u = mc.samples[, 1:result$B[[i]]], eps.sigma = sd, q = q[i])
     }
     return(result)
   }
