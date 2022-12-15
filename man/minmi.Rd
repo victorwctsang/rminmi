@@ -4,10 +4,10 @@
 \alias{minmi}
 \title{Estimate Extinction Times using the MINMI Estimator}
 \usage{
-minmi(W, sd, K, alpha = 0.05, B = NULL, .B_init = 500, .max_var = NULL)
+minmi(ages, sd, K, alpha = 0.05, B = 100, .B_init = 500, .max_var = NULL)
 }
 \arguments{
-\item{W}{Numeric vector of fossil ages.}
+\item{ages}{Numeric vector of fossil ages.}
 
 \item{sd}{Numeric vector of measurement error uncertainty associated with each fossil.}
 
