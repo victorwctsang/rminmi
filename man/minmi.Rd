@@ -4,7 +4,7 @@
 \alias{minmi}
 \title{Estimate Extinction Times using the MINMI Estimator}
 \usage{
-minmi(ages, sd, K, alpha = 0.05, B = 100, .B_init = 500, .max_var = NULL)
+minmi(ages, sd, K, alpha = 0.05, B = NULL, A = NULL, .B_init = 500)
 }
 \arguments{
 \item{ages}{Numeric vector of fossil ages.}
@@ -17,13 +17,24 @@ minmi(ages, sd, K, alpha = 0.05, B = 100, .B_init = 500, .max_var = NULL)
 
 \item{B}{Optional numeric greater than 1 specifying the number of Monte Carlo samples to use.}
 
-\item{.B_init}{Optional numeric greater than 1 specifying the number of Monte Carlo samples to use in the pilot estimates. Defaults to 500.}
+\item{A}{Optional numeric greater than 0 specifying the maximum Monte Carlo error variance we aim to have associated with our MINMI estimates.}
 
-\item{.max_var}{Optional numeric greater than 0 specifying the maximum Monte Carlo error variance we aim to have associated with our MINMI estimates.}
+\item{.B_init}{Optional numeric greater than 1 specifying the number of Monte Carlo samples to use in the pilot estimates. Defaults to 500.}
 }
 \value{
-A list with estimates for the lower end point of the 100(1-alpha)\% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
+minmi() returns a list with estimates for the lower end point of the 100(1-alpha)\% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
 }
 \description{
-This function estimates extinction times using the MINMI procedure
+A generic function for estimating extinction times using the MINMI procedure
+}
+\details{
+Note that providing a value for `B` means that the value for `A` is made redundant, as `A` is used to find `B` but not the other way around.
+}
+\examples{
+ages = runif(20, 10000, 25000)
+sd = runif(20, 50, 100)
+
+minmi(ages=ages, sd=sd, K=22000, alpha=0.05)
+minmi(ages=ages, sd=sd, K=22000, alpha=0.05, B = 100)
+minmi(ages=ages, sd=sd, K=22000, alpha=0.05, A = 1000)
 }
