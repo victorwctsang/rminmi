@@ -1,20 +1,35 @@
-#' Estimate Extinction Times using the MINMI Estimator
+#' Confidence Interval for Extinction Time using the MINMI Estimator
 #'
-#' A generic function for estimating extinction times using the MINMI procedure
+#' Estimates a confidence interval for extinction time using the MINMI procedure, taking into account sampling error (the fact that
+#' the most recent fossil date is not necessarily the most recent time that the species was extant) and measurement error (error dating fossils).
 #'
 #' @param ages Numeric vector of fossil ages.
-#' @param sd Numeric vector of measurement error uncertainty associated with each fossil.
-#' @param K Numeric upper bound for fossil ages.
+#' @param sd Numeric vector of measurement error standard deviations for each fossil (listed in the same order as they appear in `ages`.
+#' @param K Numeric upper bound for fossil ages - how old fossils can be before they are ignored, for the purpose of this analysis.
 #' @param alpha Numeric between 0 and 1. Used to find 100(1-alpha)\% confidence intervals. Defaults to 0.05 (95\% confidence intervals)
 #' @param B Optional numeric greater than 1 specifying the number of Monte Carlo samples to use.
 #' @param .B_init Optional numeric greater than 1 specifying the number of Monte Carlo samples to use in the pilot estimates. Defaults to 500.
 #' @param A Optional numeric greater than 0 specifying the maximum Monte Carlo error variance we aim to have associated with our MINMI estimates.
 #'
-#' @details Note that providing a value for `B` means that the value for `A` is made redundant, as `A` is used to find `B` but not the other way around.
+#' @details 
+#' The MINMI procedure involves assuming:
+#' - That measurement error for each fossil is normally distributed around the provided point estimate of fossil age, with the provided standard deviation
+#' - That fossil dates are uniformly distributed over the interval of allowable dates (which goes from estimated extinction time up until `K` minus measurement error)
+#' We then estimate extinction time by inversion of the sample minimum, that is, we find the estimate of extinction time \eqn{\theta}{t} at quantile level `q`
+#' such that the probability of seeing a sampling minimum less than the smallest fossil date observed in the sample `ages` is equal to `q`. This function returns thee values:
+#' a point estimator for extinction time (solving at `q=0.5`), and upper and lower limits that give us an `alpha`-level confidence interval.
+#' 
+#' When there is measurement error (that is, when `sd` is not a vector of zeros), Monte Carlo estimation is used, sampling a set `B` of fossil datasets.
+#' For each fossil, we first simulate a measurement error value `w` by sampling from a normal distributions centered on zero with standard deviation determined by the relevant entry in `sd`.
+#' Then we simulate fossil dates by sampling at random from a uniform distribution over [\eqn{\theta}{t},'K'-'w']. The number of Monte Carlo datasets `B`
+#' can be controlled in two ways: `B` can be specified directly in your function call (otherwise its default value is 500), or you can set `A`, the
+#' desired Monte Carlo variance the final extinction time estimates should have. If both `A` and `B` are specified then `A` is ignored. The bigger `B` is, or the smaller `A` is,
+#' the less Monte Carlo error there will be (and the longer this code will take to run, but it is usually pretty fast)/
+#' 
 #' @returns minmi() returns a list with estimates for the lower end point of the 100(1-alpha)\% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
 #' @export
 #' @examples
-#' ages = runif(20, 10000, 25000)
+#' ages = runif(20, 10000, 25000) #simulating some random data
 #' sd = runif(20, 50, 100)
 #'
 #' minmi(ages=ages, sd=sd, K=22000, alpha=0.05)

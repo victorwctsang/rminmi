@@ -8,6 +8,7 @@
 #' @param eps.sigma Vector of standard errors for each fossil. Length n.
 #' @param q Numeric between 0 and 1 specifying the quantile we want to estimate.
 #'
+#' @details This is used internally by \link{minmi} to choose the appropriate number of Monte Carlo samples B to use, in order to estimate extinction time with a Monte Carlo variance no larger than `A`.
 #' @return An integer representing the number of Monte Carlo samples to use.
 #'
 #' @importFrom stats dnorm pnorm var

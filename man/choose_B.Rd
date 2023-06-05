@@ -27,3 +27,6 @@ An integer representing the number of Monte Carlo samples to use.
 \description{
 Function for Finding the Number of Monte Carlo Samples for MINMI
 }
+\details{
+This is used internally by \link{minmi} to choose the appropriate number of Monte Carlo samples B to use, in order to estimate extinction time with a Monte Carlo variance no larger than `A`.
+}
