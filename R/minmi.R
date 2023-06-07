@@ -40,14 +40,14 @@ minmi <- function (ages, sd, K, alpha = 0.05, B = NULL, A = NULL, .B_init = 500)
     # Set A (our target MCE Variation)
     if (is.null(A)) {
       A <- 0.2 * min(sd^2)
-      message(sprintf('No value for A provided, using 20%% of the minimum variance instead (A = %.4f)', A))
+      message(sprintf('No value for A provided, using 20%% of the minimum variance instead (A = %.4f).\n\n', A))
     }
 
     # Choose B
     if (is.null(B)) {
       u.init <- matrix(runif(n*.B_init, 0, 1), ncol=.B_init)
       for (i in 1:length(q)) {
-        result$B[[i]] <- choose_B(A=A, K=K, m=m, n=n, u=u.init, eps.sigma=sd, q=q[i]) # TODO
+        result$B[[i]] <- choose_B(A=A, K=K, m=m, n=n, u=u.init, eps.sigma=sd, q=q[i])
       }
     }
 
@@ -78,7 +78,7 @@ estimate_quantile.minmi <- function (K, W, u=NULL, eps.sigma = 0, q) {
   m <- min(W)
   # No Measurement Error case
   theta_q.hat <- K - q ^ (-1 / n) * (K - m)
-  if (!all(eps.sigma == 0)) {
+  if (!all(eps.sigma == 0) & !is.null(u)) {
     # Measurement Error case
     newton.res <- pracma::newtonRaphson(
       fun = function(.th) estimating_eqn(.th, q, K, u, m, n, eps.sigma),
