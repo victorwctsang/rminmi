@@ -2,12 +2,12 @@
 % Please edit documentation in R/choose_B.R
 \name{choose_B}
 \alias{choose_B}
-\title{Function for Finding the Number of Monte Carlo Samples for MINMI}
+\title{Estimating the Required Number of Monte Carlo Samples for MINMI}
 \usage{
-choose_B(A, K, m, n, u, eps.sigma, q)
+choose_B(A, K, m, n, u, eps.sigma, q, theta = K - q^(-1/n) * (K - m))
 }
 \arguments{
-\item{A}{Numeric greater than 0 specifying the maximum Monte Carlo error variance we aim to have associated with our MINMI estimates.}
+\item{A}{Numeric greater than 0 specifying the maximum Monte Carlo error standard error we aim to have associated with our MINMI estimates.}
 
 \item{K}{Numeric upper bound for fossil ages.}
 
@@ -20,13 +20,18 @@ choose_B(A, K, m, n, u, eps.sigma, q)
 \item{eps.sigma}{Vector of standard errors for each fossil. Length n.}
 
 \item{q}{Numeric between 0 and 1 specifying the quantile we want to estimate.}
+
+\item{theta}{Numeric estimate of extinction time to use in finding \code{B}. Defaults to the estimate of extinction time if there were no measurement error.}
 }
 \value{
 An integer representing the number of Monte Carlo samples to use.
 }
 \description{
-Function for Finding the Number of Monte Carlo Samples for MINMI
+Estimating the Required Number of Monte Carlo Samples for MINMI
 }
 \details{
-This is used internally by \link{minmi} to choose the appropriate number of Monte Carlo samples B to use, in order to estimate extinction time with a Monte Carlo variance no larger than `A`.
+This function is used internally by \link{minmi} to choose the appropriate number of Monte Carlo samples \code{B} to use, and should rarely be called directly. 
+Given a desired Monte Carlo standard error \code{A}, this function approximates the number of Monte Carlo samples \code{B} that would be needed to achieve this level
+of precision. It assumes the true extinction time is \code{theta} in these calculations, if \code{theta} is not provided, this defaults to the estimate if we ignore measurement error.
+If the required value of \code{B} is less than 100, it is reset to 100 to be on the safe side.
 }
