@@ -55,9 +55,19 @@
 minmi <- function (ages, sd, K, alpha = 0.05, q = c(lower = alpha/2, point = 0.5, upper = 1-alpha/2), B = NULL, A = 0.1 * min(sd[sd>0]), .B_init = 500) {
   
   # set up result list.  Note for future work - this could include Monte Carlo standard errors too
-  result <- vector(mode="list", length=length(q)+1)
-  names(result)=c(q,"B")
-  result$B=rep(B,length(q))
+  tmp = rep(NA,length(q))
+  if(is.null(names(q)))
+    names(tmp)=paste0("q=",q)
+  else
+    names(tmp)=names(q)
+  if(is.null(B))
+    Btmp = tmp
+  else
+  {
+    Btmp = rep(B,length(q))
+    names(Btmp) = names(tmp)
+  }
+  result <- list(theta=tmp,B=Btmp)
 
   n <- length(ages)
   m <- min(ages)
@@ -66,7 +76,7 @@ minmi <- function (ages, sd, K, alpha = 0.05, q = c(lower = alpha/2, point = 0.5
 
   if (flag.delta_model) {
     for (i in 1:length(q)) {
-      result[[i]] <- estimate_quantile.minmi(K = K, W = ages, u=NULL, eps.sigma = sd, q = q[i])
+      result$theta[[i]] <- estimate_quantile.minmi(K = K, W = ages, u=NULL, eps.sigma = sd, q = q[i])
     }
     return(result)
   }
@@ -78,7 +88,6 @@ minmi <- function (ages, sd, K, alpha = 0.05, q = c(lower = alpha/2, point = 0.5
         result$B[[i]] <- choose_B(A=A, K=K, m=m, n=n, u=u.init, eps.sigma=sd, q=q[i])
       }
     }
-    names(result$B)=q # matching up labels of B with labels of q
     
     # Generate Monte Carlo Samples
     B.max <- max(unlist(result$B))
@@ -86,8 +95,11 @@ minmi <- function (ages, sd, K, alpha = 0.05, q = c(lower = alpha/2, point = 0.5
 
     # Calculate estimates
     for (i in 1:length(q)) {
-      result[[i]] <- estimate_quantile.minmi(K = K, W = ages, u = mc.samples[, 1:result$B[[i]]], eps.sigma = sd, q = q[i])
+      result$theta[[i]] <- estimate_quantile.minmi(K = K, W = ages, u = mc.samples[, 1:result$B[[i]]], eps.sigma = sd, q = q[i])
     }
+    result$q=q
+    result$call <- match.call()
+    class(result)="minmi"
     return(result)
   }
 }
