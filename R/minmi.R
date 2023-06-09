@@ -153,5 +153,6 @@ estimating_eqn <- function (theta, q, K, u, m, n, eps.sigma) {
   F.eps.K <- pnorm(K - theta, mean = 0, sd = eps.sigma)
   e <- uniform_to_tnorm(u, eps.sigma, a = -Inf, b = m - theta)
   psi.hat <- apply((m - e - theta) / (K - e - theta), MARGIN = 1, FUN=mean)
+  psi.hat[(m-theta)/eps.sigma< -30] = 0 # to avoid NaN for extreme cases (setting e=m-theta in the tail)
   return(sum(log(1 - F.eps.m / F.eps.K * psi.hat)) - log(q))
 }
