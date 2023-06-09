@@ -38,6 +38,14 @@ This is done using a starting value for extinction time (assuming no measurement
 }
 \value{
 minmi() returns a list with estimates for the lower end point of the 100(1-\code{alpha})\% confidence interval, point estimate, upper end point, and a list containing the values of \code{B} used for each.
+
+An object of class "minmi" with the following components:
+
+
+ \item{theta}{ a vector of estimated extinction times at each of a set of quantiles specified in \code{q}.}
+ \item{B}{ a vector containing the number of Monte Carlo samples used to estimate each \code{theta}.}
+ \item{q}{ the vector of quantiles used in estimation.}
+ \item{call }{ the function call}
 }
 \description{
 Estimates a confidence interval for extinction time using the MINMI procedure, which finds a range of values for extinction time that

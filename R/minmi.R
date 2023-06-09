@@ -36,7 +36,14 @@
 #' If both \code{A} and \code{B} are specified then \code{A} is ignored. The bigger \code{B} is, or the smaller \code{A} is,
 #' the less Monte Carlo error there will be (and the longer this code will take to run, but it is usually pretty fast).
 #' 
-#' @returns minmi() returns a list with estimates for the lower end point of the 100(1-\code{alpha})\% confidence interval, point estimate, upper end point, and a list containing the values of \code{B} used for each.
+#' @return minmi() returns a list with estimates for the lower end point of the 100(1-\code{alpha})\% confidence interval, point estimate, upper end point, and a list containing the values of \code{B} used for each.
+#' @return An object of class "minmi" with the following components:
+#'
+#'
+#'  \item{theta}{ a vector of estimated extinction times at each of a set of quantiles specified in \code{q}.}
+#'  \item{B}{ a vector containing the number of Monte Carlo samples used to estimate each \code{theta}.}
+#'  \item{q}{ the vector of quantiles used in estimation.}
+#'  \item{call }{ the function call}
 #' @export
 #' @examples
 #' ages = runif(20, 10000, 25000) #simulating some random data
