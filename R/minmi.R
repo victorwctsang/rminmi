@@ -75,7 +75,7 @@ minmi <- function (ages, sd, K, alpha = 0.05, q = c(lower = alpha/2, point = 0.5
     if (is.null(B)) {
       u.init <- matrix(runif(n*.B_init, 0, 1), ncol=.B_init)
       for (i in 1:length(q)) {
-        result$B[[i]] <- choose_B(A=A, K=K, m=m, n=n, u=u.init, eps.sigma=sd, q=q[i]) # TODO
+        result$B[[i]] <- choose_B(A=A, K=K, m=m, n=n, u=u.init, eps.sigma=sd, q=q[i])
       }
     }
     names(result$B)=q # matching up labels of B with labels of q
@@ -107,7 +107,7 @@ estimate_quantile.minmi <- function (K, W, u=NULL, eps.sigma = 0, q) {
   m <- min(W)
   # No Measurement Error case
   theta_q.hat <- K - q ^ (-1 / n) * (K - m)
-  if (!all(eps.sigma == 0)) {
+  if (!all(eps.sigma == 0) & !is.null(u)) {
     # Measurement Error case
     newton.res <- pracma::newtonRaphson(
       fun = function(.th) estimating_eqn(.th, q, K, u, m, n, eps.sigma),

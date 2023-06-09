@@ -2,4 +2,12 @@
 
 Minimum Statistic Inversion (MINMI) is a method for estimating extinction times.
 
-TBD.
+## How it works
+
+## Installation instructions
+
+## References
+
+## Credits
+
+

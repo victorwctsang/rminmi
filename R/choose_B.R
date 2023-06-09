@@ -41,7 +41,7 @@ choose_B <- function (A, K, m, n, u, eps.sigma, q, theta = K - q ^ (-1 / n) * (K
   B <- ceiling(1/A^2 * du.dtheta ^ (-2) * sum( du.dpsi^2 * sigma.psi))
 
   if (B < 100) {
-    warning(sprintf('Estimated number of Monte Carlo samples for q = %.2f is a bit small (B = %i) , using 100 instead. Consider using a smaller target MCE variance (currently using A = %.3f).', q, B, A))
+    warning(sprintf('Estimated number of Monte Carlo samples for q = %.2f is a bit small (B = %i) , using 100 instead. Consider using a smaller target MC standard error (currently using A = %.3f).', q, B, A))
     B = 100
   }
 
