@@ -18,16 +18,20 @@
 #' This is done using a starting value for extinction time (assuming no measurement error) from \code{.B_init} samples
 #'
 #' @details 
-#' The MINMI procedure involves assuming:
+#' Given a vector of fossil ages \code{ages} and corresponding measurement error standard deviations \code{sd}, and an upper limit \code{K} for the possible age of a fossil
+#' that could be included in this dataset, the MINMI procedure then assumes:
 #' \itemize{
 #' \item That measurement error for each fossil is normally distributed around the provided point estimate of fossil age, with the provided standard deviation
 #' \item That fossil dates are uniformly distributed over the interval of allowable dates (which goes from estimated extinction time up until \code{K} minus measurement error)
 #' }
 #' We then estimate extinction time by inversion of the sample minimum, that is, we find the estimate of extinction time \eqn{\theta}{t} at quantile level \code{q}
-#' such that the probability of seeing a sample minimum less than the most recent fossil date observed in the sample \code{ages} is equal to \code{q}. This function returns thee values:
-#' a point estimator for extinction time (solving at \code{q=0.5}), and upper and lower limits that give us an \code{alpha}-level confidence interval.
+#' such that the probability of seeing a sample minimum less than the most recent fossil date observed in the sample \code{ages} is equal to \code{q}. The probability
+#' is estimated using Monte Carlo techniques, hence we call our procedure sample Minimum Monte carlo Inversion (MINMI). If \code{alpha} is specified this function will return three values:
+#' the lower limit of the \code{100*(1-alpha)}\% confidence interval (solving at \code{q=alpha/2}), a point estimator for extinction time (solving at \code{q=0.5}), and an upper limit for the
+#' confidence interval (solving at \code{q=1-alpha/2}). If a vector \code{q} is specified as input then the function solves for this vector instead. 
 #' 
-#' It is assumed that \code{ages} has been specified with smaller values representing more recent fossils, for example, \code{ages} could be specified in years before present.
+#' It is assumed that \code{ages} has been specified with smaller values representing more recent specimens, for example, \code{ages} could be specified in years before present.
+#' If there is interest in estimating speciation or invasion time, data would only need to be reordered so that smaller values represent older specimens. 
 #' 
 #' When there is measurement error (that is, when \code{sd} is not a vector of zeros), Monte Carlo estimation is used to find quantiles, from a set \code{B}
 #' random samples. The number of Monte Carlo samples \code{B} that are used can be controlled in two ways: \code{B} can be specified directly in your function 
@@ -36,11 +40,9 @@
 #' If both \code{A} and \code{B} are specified then \code{A} is ignored. The bigger \code{B} is, or the smaller \code{A} is,
 #' the less Monte Carlo error there will be (and the longer this code will take to run, but it is usually pretty fast).
 #' 
-#' @return minmi() returns a list with estimates for the lower end point of the 100(1-\code{alpha})\% confidence interval, point estimate, upper end point, and a list containing the values of \code{B} used for each.
-#' @return An object of class "minmi" with the following components:
+#' @return This function returns an object of class "minmi" with the following components:
 #'
-#'
-#'  \item{theta}{ a vector of estimated extinction times at each of a set of quantiles specified in \code{q}.}
+#'  \item{theta}{ a vector of estimated extinction times at each of a set of quantiles specified in \code{q}. (If \code{q} was not specified as input, this defaults to the lower limit for a \code{100(1-alpha)}\% confidence interval, a point estimate at \code{q=0.5} ("best estimate" of extinction time), and an upper limit for a \code{100(1-alpha)}\% confidence interval.)}
 #'  \item{B}{ a vector containing the number of Monte Carlo samples used to estimate each \code{theta}.}
 #'  \item{q}{ the vector of quantiles used in estimation.}
 #'  \item{call }{ the function call}
