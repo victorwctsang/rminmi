@@ -2,39 +2,87 @@
 % Please edit documentation in R/minmi.R
 \name{minmi}
 \alias{minmi}
-\title{Estimate Extinction Times using the MINMI Estimator}
+\title{Confidence Interval for Extinction Time using the MINMI Estimator}
 \usage{
-minmi(ages, sd, K, alpha = 0.05, B = NULL, A = NULL, .B_init = 500)
+minmi(
+  ages,
+  sd,
+  K,
+  alpha = 0.05,
+  q = c(lower = alpha/2, point = 0.5, upper = 1 - alpha/2),
+  B = NULL,
+  A = 0.1 * min(sd[sd > 0]),
+  .B_init = 500
+)
 }
 \arguments{
-\item{ages}{Numeric vector of fossil ages.}
+\item{ages}{Numeric vector of fossil ages, with smaller values being more recent fossil ages.}
 
-\item{sd}{Numeric vector of measurement error uncertainty associated with each fossil.}
+\item{sd}{Numeric vector of measurement error standard deviations for each fossil (listed in the same order as they appear in \code{ages}).}
 
-\item{K}{Numeric upper bound for fossil ages.}
+\item{K}{Numeric upper bound for fossil ages - how old fossils can be before they are ignored, for the purpose of this analysis. A sensible choice of \code{B} is
+close to the age of the oldest fossil.}
 
-\item{alpha}{Numeric between 0 and 1. Used to find 100(1-alpha)\% confidence intervals. Defaults to 0.05 (95\% confidence intervals)}
+\item{alpha}{Numeric between 0 and 1. Used to find 100(1-\code{alpha})\% confidence intervals. Defaults to 0.05 (95\% confidence intervals)}
 
-\item{B}{Optional numeric greater than 1 specifying the number of Monte Carlo samples to use.}
+\item{q}{Numeric vector of values between 0 and 1, specifying the quantile at which we want to solve for extinction time. Defaults to \code{c(alpha/2,0.5,1-alpha/2)},
+which gives the limits of a 100(1-\code{alpha})\% confidence interval and a point estimate obtained by solving at 0.5. If \code{q} is specified it overrides any input for \code{alpha}.}
 
-\item{A}{Optional numeric greater than 0 specifying the maximum Monte Carlo error variance we aim to have associated with our MINMI estimates.}
+\item{B}{Optional numeric greater than 1 specifying the number of Monte Carlo samples to use in quantile estimation.}
 
-\item{.B_init}{Optional numeric greater than 1 specifying the number of Monte Carlo samples to use in the pilot estimates. Defaults to 500.}
+\item{A}{Optional numeric greater than 0 specifying the maximum Monte Carlo standard error we aim to have associated with our MINMI estimates. Defaults to
+10\% of the smallest non-zero value of \code{sd}.}
+
+\item{.B_init}{In choosing the required sample size \code{B} to keep Monte Carlo error variance below \code{A}, the error variance must first be approximated.
+This is done using a starting value for extinction time (assuming no measurement error) from \code{.B_init} samples}
 }
 \value{
-minmi() returns a list with estimates for the lower end point of the 100(1-alpha)\% confidence interval, point estimate, upper end point, and a list containing the B's used for each.
+This function returns an object of class "minmi" with the following components:
+
+ \item{theta}{ a vector of estimated extinction times at each of a set of quantiles specified in \code{q}. (If \code{q} was not specified as input, this defaults to the lower limit for a \code{100(1-alpha)}\% confidence interval, a point estimate at \code{q=0.5} ("best estimate" of extinction time), and an upper limit for a \code{100(1-alpha)}\% confidence interval.)}
+ \item{B}{ a vector containing the number of Monte Carlo samples used to estimate each \code{theta}.}
+ \item{q}{ the vector of quantiles used in estimation.}
+ \item{call }{ the function call}
 }
 \description{
-A generic function for estimating extinction times using the MINMI procedure
+Estimates a confidence interval for extinction time using the MINMI procedure, which finds a range of values for extinction time that
+are plausible considering the date of the most recently observed fossil, accounting for sampling error (the fact that
+the most recent fossil date is not necessarily the most recent time that the species was extant) and measurement error (error dating fossils).
 }
 \details{
-Note that providing a value for `B` means that the value for `A` is made redundant, as `A` is used to find `B` but not the other way around.
+Given a vector of fossil ages \code{ages} and corresponding measurement error standard deviations \code{sd}, and an upper limit \code{K} for the possible age of a fossil
+that could be included in this dataset, the MINMI procedure then assumes:
+\itemize{
+\item That measurement error for each fossil is normally distributed around the provided point estimate of fossil age, with the provided standard deviation
+\item That fossil dates are uniformly distributed over the interval of allowable dates (which goes from estimated extinction time up until \code{K} minus measurement error)
+}
+We then estimate extinction time by inversion of the sample minimum, that is, we find the estimate of extinction time \eqn{\theta}{t} at quantile level \code{q}
+such that the probability of seeing a sample minimum less than the most recent fossil date observed in the sample \code{ages} is equal to \code{q}. The probability
+is estimated using Monte Carlo techniques, hence we call our procedure sample Minimum Monte carlo Inversion (MINMI). If \code{alpha} is specified this function will return three values:
+the lower limit of the \code{100*(1-alpha)}\% confidence interval (solving at \code{q=alpha/2}), a point estimator for extinction time (solving at \code{q=0.5}), and an upper limit for the
+confidence interval (solving at \code{q=1-alpha/2}). If a vector \code{q} is specified as input then the function solves for this vector instead. 
+
+It is assumed that \code{ages} has been specified with smaller values representing more recent specimens, for example, \code{ages} could be specified in years before present.
+If there is interest in estimating speciation or invasion time, data would only need to be reordered so that smaller values represent older specimens. 
+
+When there is measurement error (that is, when \code{sd} is not a vector of zeros), Monte Carlo estimation is used to find quantiles, from a set \code{B}
+random samples. The number of Monte Carlo samples \code{B} that are used can be controlled in two ways: \code{B} can be specified directly in your function 
+call, or you can set \code{A}, the desired Monte Carlo variance the final extinction time estimates should have. If neither is specified, \code{A} defaults to
+a tenth of the smallest non-zero value in \code{sd}, and the required number of Monte Carlo samples to achieve this is approximated using the \link{choose_B} function. 
+If both \code{A} and \code{B} are specified then \code{A} is ignored. The bigger \code{B} is, or the smaller \code{A} is,
+the less Monte Carlo error there will be (and the longer this code will take to run, but it is usually pretty fast).
 }
 \examples{
-ages = runif(20, 10000, 25000)
+ages = runif(20, 10000, 25000) #simulating some random data
 sd = runif(20, 50, 100)
 
-minmi(ages=ages, sd=sd, K=22000, alpha=0.05)
-minmi(ages=ages, sd=sd, K=22000, alpha=0.05, B = 100)
-minmi(ages=ages, sd=sd, K=22000, alpha=0.05, A = 1000)
+# for a point estimate plus 95\% CI
+minmi(ages=ages, sd=sd, K=22000, alpha=0.05) 
+
+# finding just a point estimate, but using 200 Monte Carlo samples
+minmi(ages=ages, sd=sd, K=22000, q=0.5, B = 200) 
+
+# now using large enough B to keep Monte Carlo standard error less than 1 
+minmi(ages=ages, sd=sd, K=22000, alpha=0.05, A = 1) 
+
 }
