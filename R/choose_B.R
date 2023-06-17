@@ -9,7 +9,7 @@
 #' @param q Numeric between 0 and 1 specifying the quantile we want to estimate.
 #' @param theta Numeric estimate of extinction time to use in finding \code{B}. Defaults to the estimate of extinction time if there were no measurement error.
 #'
-#' @details This function is used internally by \link{minmi} to choose the appropriate number of Monte Carlo samples \code{B} to use, and should rarely be called directly. 
+#' @details This function is used internally by \link{minmi} to choose the appropriate number of Monte Carlo samples \code{B} to use, and should rarely be called directly.
 #' Given a desired Monte Carlo standard error \code{A}, this function approximates the number of Monte Carlo samples \code{B} that would be needed to achieve this level
 #' of precision. It assumes the true extinction time is \code{theta} in these calculations, if \code{theta} is not provided, this defaults to the estimate if we ignore measurement error.
 #' If the required value of \code{B} is less than 100, it is reset to 100 to be on the safe side.
@@ -41,7 +41,7 @@ choose_B <- function (A, K, m, n, u, eps.sigma, q, theta = K - q ^ (-1 / n) * (K
   B <- ceiling(1/A^2 * du.dtheta ^ (-2) * sum( du.dpsi^2 * sigma.psi))
 
   if (B < 100) {
-    warning(sprintf('Estimated number of Monte Carlo samples for q = %.2f is a bit small (B = %i), using 100 instead. Consider using a smaller target MC standard error (currently using A = %.3f).', q, B, A))
+    warning(sprintf('Estimated number of Monte Carlo samples for q = %.3f is a bit small (B = %i), using 100 instead. Consider using a smaller target MC standard error (currently using A = %.2f).\n', q, B, A))
     B = 100
   }
 
